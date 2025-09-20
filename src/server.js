@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import pino from 'pino';
-import contactsRoutes from './routes/contactsRoutes.js';
+import contactsRoutes from './routers/contacts.js';
+import notFoundHandler from './middlewares/notFoundHandler.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 const logger = pino();
 
@@ -22,12 +24,11 @@ export const setupServer = () => {
   // Роути
   app.use('/contacts', contactsRoutes);
 
-  // Обробка неіснуючих роутів (повертає статус 404 і відповідне повідомлення)
-  app.use((req, res) => {
-    res.status(404).json({
-      message: 'Not found',
-    });
-  });
+  // Обробка неіснуючих роутів
+  app.use(notFoundHandler);
+
+  // Обробка помилок
+  app.use(errorHandler);
 
   // Запуск серверу на порті, вказаному через змінну оточення PORT або 3000
   const PORT = process.env.PORT || 3000;
