@@ -1,9 +1,37 @@
 import { Contact } from '../models/contact.js';
 
-export const getAllContacts = async () => {
+export const getAllContacts = async (page = 1, perPage = 10, sortBy = 'name', sortOrder = 'asc', type = null, isFavourite = null) => {
   try {
-    const contacts = await Contact.find();
-    return contacts;
+    const skip = (page - 1) * perPage;
+    const sortDirection = sortOrder === 'desc' ? -1 : 1;
+    const sortOptions = { [sortBy]: sortDirection };
+    
+    const filterOptions = {};
+    if (type) {
+      filterOptions.contactType = type;
+    }
+    if (isFavourite !== null) {
+      filterOptions.isFavourite = isFavourite;
+    }
+    
+    const [contacts, totalItems] = await Promise.all([
+      Contact.find(filterOptions).sort(sortOptions).skip(skip).limit(perPage),
+      Contact.countDocuments(filterOptions)
+    ]);
+    
+    const totalPages = Math.ceil(totalItems / perPage);
+    const hasPreviousPage = page > 1;
+    const hasNextPage = page < totalPages;
+    
+    return {
+      data: contacts,
+      page,
+      perPage,
+      totalItems,
+      totalPages,
+      hasPreviousPage,
+      hasNextPage
+    };
   } catch (error) {
     throw new Error(`Failed to get contacts: ${error.message}`);
   }
