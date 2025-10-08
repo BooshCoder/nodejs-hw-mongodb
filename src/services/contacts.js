@@ -1,12 +1,12 @@
 import { Contact } from '../models/contact.js';
 
-export const getAllContacts = async (page = 1, perPage = 10, sortBy = 'name', sortOrder = 'asc', type = null, isFavourite = null) => {
+export const getAllContacts = async (userId, page = 1, perPage = 10, sortBy = 'name', sortOrder = 'asc', type = null, isFavourite = null) => {
   try {
     const skip = (page - 1) * perPage;
     const sortDirection = sortOrder === 'desc' ? -1 : 1;
     const sortOptions = { [sortBy]: sortDirection };
     
-    const filterOptions = {};
+    const filterOptions = { userId }; // Фільтруємо по userId
     if (type) {
       filterOptions.contactType = type;
     }
@@ -37,9 +37,9 @@ export const getAllContacts = async (page = 1, perPage = 10, sortBy = 'name', so
   }
 };
 
-export const getContactById = async (contactId) => {
+export const getContactById = async (contactId, userId) => {
   try {
-    const contact = await Contact.findById(contactId);
+    const contact = await Contact.findOne({ _id: contactId, userId }); // Фільтруємо по userId
     return contact;
   } catch (error) {
     throw new Error(`Failed to get contact: ${error.message}`);
@@ -56,10 +56,10 @@ export const createContact = async (contactData) => {
   }
 };
 
-export const updateContact = async (contactId, updateData) => {
+export const updateContact = async (contactId, userId, updateData) => {
   try {
-    const updatedContact = await Contact.findByIdAndUpdate(
-      contactId,
+    const updatedContact = await Contact.findOneAndUpdate(
+      { _id: contactId, userId }, // Фільтруємо по userId
       updateData,
       { new: true, runValidators: true }
     );
@@ -69,9 +69,9 @@ export const updateContact = async (contactId, updateData) => {
   }
 };
 
-export const deleteContact = async (contactId) => {
+export const deleteContact = async (contactId, userId) => {
   try {
-    const deletedContact = await Contact.findByIdAndDelete(contactId);
+    const deletedContact = await Contact.findOneAndDelete({ _id: contactId, userId }); // Фільтруємо по userId
     return deletedContact;
   } catch (error) {
     throw new Error(`Failed to delete contact: ${error.message}`);
