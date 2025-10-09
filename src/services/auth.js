@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import createHttpError from 'http-errors';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
+import { sendEmail } from '../utils/sendEmail.js';
 
 // Функція для реєстрації нового користувача
 export const registerUser = async (userData) => {
@@ -218,6 +219,145 @@ export const logoutSession = async (refreshToken) => {
     }
     // Інші помилки обгортаємо в загальну помилку
     throw new Error(`Failed to logout session: ${error.message}`);
+  }
+};
+
+// Функція для відправки email з посиланням для скидання паролю
+export const sendResetEmail = async (email) => {
+  try {
+    // Шукаємо користувача за email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      // Якщо користувача не знайдено - повертаємо помилку 404
+      throw createHttpError(404, 'User not found!');
+    }
+
+    // Генеруємо JWT токен з email користувача
+    // Токен буде дійсний протягом 5 хвилин
+    const resetToken = jwt.sign(
+      { email: user.email }, // Payload - email користувача
+      process.env.JWT_SECRET, // Секретний ключ для підпису
+      { expiresIn: '5m' } // Термін життя токену - 5 хвилин
+    );
+
+    // Формуємо посилання для скидання паролю
+    // Приклад: https://your-frontend-domain.com/reset-password?token=eyJhbGciOi...
+    const resetLink = `${process.env.APP_DOMAIN}/reset-password?token=${resetToken}`;
+
+    // HTML шаблон для листа
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Password Reset Request</h2>
+        <p>Hello,</p>
+        <p>You requested to reset your password. Click the button below to proceed:</p>
+        <div style="margin: 30px 0;">
+          <a href="${resetLink}" 
+             style="background-color: #007bff; color: white; padding: 12px 30px; 
+                    text-decoration: none; border-radius: 5px; display: inline-block;">
+            Reset Password
+          </a>
+        </div>
+        <p>Or copy and paste this link into your browser:</p>
+        <p style="color: #666; word-break: break-all;">${resetLink}</p>
+        <p style="color: #999; font-size: 12px; margin-top: 30px;">
+          This link will expire in 5 minutes. If you didn't request this, please ignore this email.
+        </p>
+      </div>
+    `;
+
+    // Текстова версія листа (для email клієнтів без HTML)
+    const textContent = `
+      Password Reset Request
+      
+      Hello,
+      
+      You requested to reset your password. Use the link below to proceed:
+      ${resetLink}
+      
+      This link will expire in 5 minutes. If you didn't request this, please ignore this email.
+    `;
+
+    // Відправляємо email
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Password Reset Request',
+        html: htmlContent,
+        text: textContent,
+      });
+    } catch (emailError) {
+      // Якщо не вдалося відправити email - повертаємо помилку 500
+      console.error('Email sending error:', emailError);
+      throw createHttpError(500, 'Failed to send the email, please try again later.');
+    }
+
+    // Повертаємо успіх
+    return { success: true };
+  } catch (error) {
+    // Якщо це наша помилка (404 або 500) - пробрасуємо її далі
+    if (error.status === 404 || error.status === 500) {
+      throw error;
+    }
+    // Інші помилки обгортаємо в загальну помилку
+    throw new Error(`Failed to send reset email: ${error.message}`);
+  }
+};
+
+// Функція для скидання паролю
+export const resetPassword = async (token, newPassword) => {
+  try {
+    // Крок 1: Валідуємо та декодуємо JWT токен
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      // Якщо токен невалідний або протермінований
+      // jwt.verify викине помилку з типом:
+      // - TokenExpiredError (якщо протермінований)
+      // - JsonWebTokenError (якщо пошкоджений)
+      throw createHttpError(401, 'Token is expired or invalid.');
+    }
+
+    // Крок 2: Отримуємо email з токену
+    const { email } = decoded;
+
+    if (!email) {
+      // Якщо в токені немає email - токен пошкоджений
+      throw createHttpError(401, 'Token is expired or invalid.');
+    }
+
+    // Крок 3: Шукаємо користувача в базі даних
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      // Якщо користувача не знайдено - повертаємо помилку 404
+      throw createHttpError(404, 'User not found!');
+    }
+
+    // Крок 4: Хешуємо новий пароль
+    // Використовуємо bcrypt з 10 раундами хешування
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Крок 5: Оновлюємо пароль користувача в базі даних
+    user.password = hashedPassword;
+    await user.save();
+
+    // Крок 6: Видаляємо всі сесії цього користувача
+    // Це змусить користувача залогінитись заново з новим паролем
+    // Також це безпечніше - якщо хтось отримав доступ до акаунту,
+    // після зміни паролю всі його сесії будуть недійсними
+    await Session.deleteMany({ userId: user._id });
+
+    // Повертаємо успіх
+    return { success: true };
+  } catch (error) {
+    // Якщо це наша помилка (401 або 404) - пробрасуємо її далі
+    if (error.status === 401 || error.status === 404) {
+      throw error;
+    }
+    // Інші помилки обгортаємо в загальну помилку
+    throw new Error(`Failed to reset password: ${error.message}`);
   }
 };
 

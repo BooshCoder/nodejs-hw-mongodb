@@ -1,4 +1,4 @@
-import { registerUser as registerUserService, loginUser as loginUserService, refreshSession as refreshSessionService, logoutSession as logoutSessionService } from '../services/auth.js';
+import { registerUser as registerUserService, loginUser as loginUserService, refreshSession as refreshSessionService, logoutSession as logoutSessionService, sendResetEmail as sendResetEmailService, resetPassword as resetPasswordService } from '../services/auth.js';
 
 // Контролер для реєстрації користувача
 export const registerUser = async (req, res) => {
@@ -85,5 +85,37 @@ export const logoutSession = async (req, res) => {
 
   // Повертаємо успішну відповідь зі статусом 204 (No Content)
   res.status(204).send();
+};
+
+// Контролер для відправки email з посиланням для скидання паролю
+export const sendResetEmail = async (req, res) => {
+  // Отримуємо email з тіла запиту
+  const { email } = req.body;
+
+  // Викликаємо сервіс для відправки email
+  await sendResetEmailService(email);
+
+  // Повертаємо успішну відповідь зі статусом 200
+  res.status(200).json({
+    status: 200,
+    message: 'Reset password email has been successfully sent.',
+    data: {},
+  });
+};
+
+// Контролер для скидання паролю
+export const resetPassword = async (req, res) => {
+  // Отримуємо токен та новий пароль з тіла запиту
+  const { token, password } = req.body;
+
+  // Викликаємо сервіс для скидання паролю
+  await resetPasswordService(token, password);
+
+  // Повертаємо успішну відповідь зі статусом 200
+  res.status(200).json({
+    status: 200,
+    message: 'Password has been successfully reset.',
+    data: {},
+  });
 };
 
