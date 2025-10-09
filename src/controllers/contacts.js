@@ -1,5 +1,7 @@
 import createHttpError from 'http-errors';
 import { getAllContacts, getContactById as getContactByIdService, createContact as createContactService, updateContact as updateContactService, deleteContact as deleteContactService } from '../services/contacts.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
+import { deleteTempFile } from '../middlewares/upload.js';
 export const getContacts = async (req, res) => {
   const { page = 1, perPage = 10, sortBy = 'name', sortOrder = 'asc', type, isFavourite } = req.validatedQuery || req.query;
   const userId = req.user._id; // Отримуємо userId з авторизованого користувача
@@ -34,7 +36,7 @@ export const getContactById = async (req, res) => {
 };
 
 export const createContact = async (req, res) => {
-  const { name, phoneNumber, email, isFavourite, contactType } = req.body;
+  const { name, phoneNumber, email, isFavourite, contactType } = req.validatedBody || req.body;
   const userId = req.user._id; // Отримуємо userId з авторизованого користувача
   
   // Валідація обов'язкових полів
@@ -51,6 +53,26 @@ export const createContact = async (req, res) => {
     ...(isFavourite !== undefined && { isFavourite }),
   };
   
+  // Якщо є завантажений файл - завантажуємо його на Cloudinary
+  if (req.file) {
+    try {
+      // Завантажуємо файл на Cloudinary
+      const uploadResult = await uploadToCloudinary(req.file.path, {
+        folder: 'contacts', // Зберігаємо в папці 'contacts'
+      });
+      
+      // Додаємо URL фото до даних контакту
+      contactData.photo = uploadResult.secure_url;
+      
+      // Видаляємо тимчасовий файл після успішного завантаження
+      deleteTempFile(req.file.path);
+    } catch {
+      // Видаляємо тимчасовий файл навіть при помилці
+      deleteTempFile(req.file.path);
+      throw createHttpError(500, 'Failed to upload photo to Cloudinary');
+    }
+  }
+  
   const newContact = await createContactService(contactData);
   
   res.status(201).json({
@@ -63,7 +85,27 @@ export const createContact = async (req, res) => {
 export const updateContact = async (req, res) => {
   const { contactId } = req.params;
   const userId = req.user._id; // Отримуємо userId з авторизованого користувача
-  const updateData = req.body;
+  const updateData = req.validatedBody || req.body;
+  
+  // Якщо є завантажений файл - завантажуємо його на Cloudinary
+  if (req.file) {
+    try {
+      // Завантажуємо файл на Cloudinary
+      const uploadResult = await uploadToCloudinary(req.file.path, {
+        folder: 'contacts', // Зберігаємо в папці 'contacts'
+      });
+      
+      // Додаємо URL фото до даних оновлення
+      updateData.photo = uploadResult.secure_url;
+      
+      // Видаляємо тимчасовий файл після успішного завантаження
+      deleteTempFile(req.file.path);
+    } catch {
+      // Видаляємо тимчасовий файл навіть при помилці
+      deleteTempFile(req.file.path);
+      throw createHttpError(500, 'Failed to upload photo to Cloudinary');
+    }
+  }
   
   const updatedContact = await updateContactService(contactId, userId, updateData);
   

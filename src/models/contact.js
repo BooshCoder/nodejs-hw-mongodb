@@ -27,6 +27,10 @@ const contactSchema = new mongoose.Schema({
     ref: 'User', // Зв'язок з моделлю User
     required: [true, 'User ID is required'],
   },
+  photo: {
+    type: String, // URL фото з Cloudinary
+    default: null, // За замовчуванням фото немає
+  },
 }, {
   timestamps: true, 
 });

@@ -1,8 +1,8 @@
 import express from 'express';
-import { registerUser, loginUser, refreshSession, logoutSession } from '../controllers/auth.js';
+import { registerUser, loginUser, refreshSession, logoutSession, sendResetEmail, resetPassword } from '../controllers/auth.js';
 import ctrlWrapper from '../utils/ctrlWrapper.js';
 import { validateBody } from '../middlewares/validateBody.js';
-import { registerUserSchema, loginUserSchema } from '../schemas/auth.js';
+import { registerUserSchema, loginUserSchema, sendResetEmailSchema, resetPasswordSchema } from '../schemas/auth.js';
 
 const router = express.Router();
 
@@ -30,6 +30,20 @@ router.post(
 router.post(
   '/logout',
   ctrlWrapper(logoutSession) // Викликаємо контролер (без валідації body, бо дані в cookies)
+);
+
+// POST /auth/send-reset-email - відправка email для скидання паролю
+router.post(
+  '/send-reset-email',
+  validateBody(sendResetEmailSchema), // Спочатку валідуємо тіло запиту (перевіряємо email)
+  ctrlWrapper(sendResetEmail) // Потім викликаємо контролер
+);
+
+// POST /auth/reset-pwd - скидання паролю за токеном
+router.post(
+  '/reset-pwd',
+  validateBody(resetPasswordSchema), // Спочатку валідуємо тіло запиту (token та password)
+  ctrlWrapper(resetPassword) // Потім викликаємо контролер
 );
 
 export default router;
