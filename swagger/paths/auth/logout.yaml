@@ -1,0 +1,25 @@
+tags:
+  - Auth
+summary: Вихід користувача
+operationId: logoutUser
+description: |
+  Завершення сесії користувача та видалення refresh token.
+  Refresh token автоматично читається з HTTP-only cookie.
+security: []
+parameters:
+  - in: cookie
+    name: refreshToken
+    required: true
+    schema:
+      type: string
+    description: JWT refresh token (автоматично передається браузером)
+responses:
+  '204':
+    description: Користувач успішно вийшов (без тіла відповіді)
+    headers:
+      Set-Cookie:
+        schema:
+          type: string
+          example: refreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0
+  '401':
+    $ref: '../../components/responses/401.yaml'
