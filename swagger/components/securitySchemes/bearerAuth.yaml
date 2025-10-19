@@ -1,0 +1,16 @@
+type: http
+scheme: bearer
+bearerFormat: JWT
+description: |
+  JWT Bearer token для авторизації.
+
+  Використання:
+  1. Отримайте accessToken через POST /auth/login або POST /auth/refresh
+  2. Додайте токен в заголовок Authorization: Bearer <accessToken>
+
+  Приклад:
+  ```
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  ```
+
+  Токен дійсний протягом 15 хвилин.

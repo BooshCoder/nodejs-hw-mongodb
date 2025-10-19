@@ -1,0 +1,39 @@
+tags:
+  - Contacts
+summary: Отримати контакт за ID
+operationId: getContactById
+description: Отримати детальну інформацію про конкретний контакт за його ID
+security:
+  - bearerAuth: []
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: string
+      example: 65ca67e7ae7f10c88b598384
+    description: MongoDB ObjectId контакту
+responses:
+  '200':
+    description: Контакт успішно знайдено
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Successfully found contact with id 65ca67e7ae7f10c88b598384!
+            data:
+              $ref: '../../../components/schemas/contact.yaml'
+  '401':
+    $ref: '../../../components/responses/401.yaml'
+  '404':
+    $ref: '../../../components/responses/404.yaml'

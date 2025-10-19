@@ -1,0 +1,53 @@
+tags:
+  - Auth
+summary: Скидання паролю
+operationId: resetPassword
+description: |
+  Скидання паролю користувача за допомогою токена з email.
+  Токен має обмежений термін дії (зазвичай 15 хвилин).
+security: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - token
+          - password
+        properties:
+          token:
+            type: string
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWNhNjdlN2FlN2YxMGM4OGI1OTgzODQiLCJpYXQiOjE3MDk1NjQ4MTAsImV4cCI6MTcwOTU2NTcxMH0.abc123
+          password:
+            type: string
+            format: password
+            minLength: 6
+            example: newSecurePassword123
+responses:
+  '200':
+    description: Пароль успішно змінено
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Password has been successfully reset!
+            data:
+              type: object
+              example: {}
+  '400':
+    $ref: '../../components/responses/400.yaml'
+  '401':
+    $ref: '../../components/responses/401.yaml'
+  '404':
+    $ref: '../../components/responses/404.yaml'

@@ -1,0 +1,34 @@
+description: Bad Request - Невалідні дані запиту
+content:
+  application/json:
+    schema:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: Bad Request
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Validation error
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: array
+                    items:
+                      type: string
+                    example: ['email']
+                  message:
+                    type: string
+                    example: '"email" must be a valid email'

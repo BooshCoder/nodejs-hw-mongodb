@@ -1,0 +1,21 @@
+description: Conflict - Конфлікт даних (наприклад, email вже зареєстровано)
+content:
+  application/json:
+    schema:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+          example: 409
+        message:
+          type: string
+          example: Conflict
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Email in use

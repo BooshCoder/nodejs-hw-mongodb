@@ -1,0 +1,88 @@
+tags:
+  - Contacts
+summary: Оновити контакт
+operationId: updateContact
+description: |
+  Оновити дані існуючого контакту. Всі поля опціональні.
+  Підтримує як JSON (application/json), так і form-data (multipart/form-data) для завантаження фото.
+security:
+  - bearerAuth: []
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: string
+      example: 65ca67e7ae7f10c88b598384
+    description: MongoDB ObjectId контакту
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+            example: John Doe Updated
+          phoneNumber:
+            type: string
+            example: '+380509876543'
+          email:
+            type: string
+            format: email
+            example: john.updated@example.com
+          isFavourite:
+            type: boolean
+          contactType:
+            type: string
+            enum: [work, home, personal]
+    multipart/form-data:
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+            example: John Doe Updated
+          phoneNumber:
+            type: string
+            example: '+380509876543'
+          email:
+            type: string
+            format: email
+            example: john.updated@example.com
+          isFavourite:
+            type: boolean
+          contactType:
+            type: string
+            enum: [work, home, personal]
+          photo:
+            type: string
+            format: binary
+            description: Нове фото контакту (JPG, PNG)
+responses:
+  '200':
+    description: Контакт успішно оновлено
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Successfully patched a contact!
+            data:
+              $ref: '../../../components/schemas/contact.yaml'
+  '400':
+    $ref: '../../../components/responses/400.yaml'
+  '401':
+    $ref: '../../../components/responses/401.yaml'
+  '404':
+    $ref: '../../../components/responses/404.yaml'

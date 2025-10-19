@@ -1,0 +1,46 @@
+tags:
+  - Auth
+summary: Відправка email для скидання паролю
+operationId: sendResetEmail
+description: |
+  Надсилає email з посиланням для скидання паролю.
+  Посилання містить одноразовий JWT токен.
+security: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - email
+        properties:
+          email:
+            type: string
+            format: email
+            example: user@example.com
+responses:
+  '200':
+    description: Email успішно надіслано
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Reset password email has been successfully sent!
+            data:
+              type: object
+              example: {}
+  '400':
+    $ref: '../../components/responses/400.yaml'
+  '404':
+    $ref: '../../components/responses/404.yaml'

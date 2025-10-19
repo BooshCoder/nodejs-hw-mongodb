@@ -1,0 +1,48 @@
+tags:
+  - Auth
+summary: Оновлення сесії
+operationId: refreshSession
+description: |
+  Оновлення access token за допомогою refresh token з cookies.
+  Refresh token автоматично читається з HTTP-only cookie.
+security: []
+parameters:
+  - in: cookie
+    name: refreshToken
+    required: true
+    schema:
+      type: string
+    description: JWT refresh token (автоматично передається браузером)
+responses:
+  '200':
+    description: Сесія успішно оновлена
+    headers:
+      Set-Cookie:
+        schema:
+          type: string
+          example: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=2592000
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Successfully refreshed a session!
+            data:
+              type: object
+              required:
+                - accessToken
+              properties:
+                accessToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWNhNjdlN2FlN2YxMGM4OGI1OTgzODQiLCJpYXQiOjE3MDk1NjQ4MTAsImV4cCI6MTcwOTU2NTcxMH0.abc123
+  '401':
+    $ref: '../../components/responses/401.yaml'

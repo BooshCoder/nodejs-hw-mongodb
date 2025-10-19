@@ -1,0 +1,56 @@
+type: object
+required:
+  - _id
+  - name
+  - phoneNumber
+  - contactType
+  - userId
+  - createdAt
+  - updatedAt
+properties:
+  _id:
+    type: string
+    example: 65ca67e7ae7f10c88b598384
+    description: MongoDB ObjectId контакту
+  name:
+    type: string
+    example: John Doe
+    description: Ім'я контакту
+  phoneNumber:
+    type: string
+    example: '+380501234567'
+    description: Номер телефону контакту
+  email:
+    type: string
+    format: email
+    example: john.doe@example.com
+    description: Email контакту (опціонально)
+  isFavourite:
+    type: boolean
+    default: false
+    example: false
+    description: Чи є контакт улюбленим
+  contactType:
+    type: string
+    enum: [work, home, personal]
+    example: personal
+    description: Тип контакту
+  userId:
+    type: string
+    example: 65ca67e7ae7f10c88b598380
+    description: ID користувача, якому належить контакт
+  photo:
+    type: string
+    format: uri
+    example: https://res.cloudinary.com/demo/image/upload/v1234567890/contacts/photo.jpg
+    description: URL фото контакту (опціонально, Cloudinary URL)
+  createdAt:
+    type: string
+    format: date-time
+    example: '2024-02-13T10:30:00.000Z'
+    description: Дата та час створення контакту
+  updatedAt:
+    type: string
+    format: date-time
+    example: '2024-02-13T12:45:00.000Z'
+    description: Дата та час останнього оновлення контакту

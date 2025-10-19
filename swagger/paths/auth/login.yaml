@@ -1,0 +1,61 @@
+tags:
+  - Auth
+summary: Вхід користувача
+operationId: loginUser
+description: Аутентифікація користувача та створення сесії
+security: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - email
+          - password
+        properties:
+          email:
+            type: string
+            format: email
+            example: user@example.com
+          password:
+            type: string
+            format: password
+            example: securePassword123
+responses:
+  '200':
+    description: Успішна аутентифікація
+    headers:
+      Set-Cookie:
+        schema:
+          type: string
+          example: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=2592000
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Successfully logged in an user!
+            data:
+              type: object
+              required:
+                - accessToken
+              properties:
+                accessToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWNhNjdlN2FlN2YxMGM4OGI1OTgzODQiLCJpYXQiOjE3MDk1NjQ4MTAsImV4cCI6MTcwOTU2NTcxMH0.abc123
+  '400':
+    $ref: '../../components/responses/400.yaml'
+  '401':
+    $ref: '../../components/responses/401.yaml'
+  '404':
+    $ref: '../../components/responses/404.yaml'
