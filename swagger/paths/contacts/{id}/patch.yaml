@@ -4,7 +4,7 @@ summary: Оновити контакт
 operationId: updateContact
 description: |
   Оновити дані існуючого контакту. Всі поля опціональні.
-  Підтримує як JSON (application/json), так і form-data (multipart/form-data) для завантаження фото.
+  Дані передаються у форматі multipart/form-data для можливості завантаження фото.
 security:
   - bearerAuth: []
 parameters:
@@ -18,25 +18,6 @@ parameters:
 requestBody:
   required: true
   content:
-    application/json:
-      schema:
-        type: object
-        properties:
-          name:
-            type: string
-            example: John Doe Updated
-          phoneNumber:
-            type: string
-            example: '+380509876543'
-          email:
-            type: string
-            format: email
-            example: john.updated@example.com
-          isFavourite:
-            type: boolean
-          contactType:
-            type: string
-            enum: [work, home, personal]
     multipart/form-data:
       schema:
         type: object

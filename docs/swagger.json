@@ -15,7 +15,7 @@
       "description": "Local development server"
     },
     {
-      "url": "https://your-deployed-app.com",
+      "url": "https://contacts-app-5v5a.onrender.com",
       "description": "Production server"
     }
   ],
@@ -626,7 +626,7 @@
         ],
         "summary": "Створити новий контакт",
         "operationId": "createContact",
-        "description": "Створити новий контакт для поточного користувача.\nПідтримує як JSON (application/json), так і form-data (multipart/form-data) для завантаження фото.\n",
+        "description": "Створити новий контакт для поточного користувача.\nДані передаються у форматі multipart/form-data для можливості завантаження фото.\n",
         "security": [
           {
             "bearerAuth": []
@@ -635,44 +635,6 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "name",
-                  "phoneNumber",
-                  "contactType"
-                ],
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "example": "John Doe"
-                  },
-                  "phoneNumber": {
-                    "type": "string",
-                    "example": "+380501234567"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john.doe@example.com"
-                  },
-                  "isFavourite": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "contactType": {
-                    "type": "string",
-                    "enum": [
-                      "work",
-                      "home",
-                      "personal"
-                    ],
-                    "example": "personal"
-                  }
-                }
-              }
-            },
             "multipart/form-data": {
               "schema": {
                 "type": "object",
@@ -824,7 +786,7 @@
         ],
         "summary": "Оновити контакт",
         "operationId": "updateContact",
-        "description": "Оновити дані існуючого контакту. Всі поля опціональні.\nПідтримує як JSON (application/json), так і form-data (multipart/form-data) для завантаження фото.\n",
+        "description": "Оновити дані існуючого контакту. Всі поля опціональні.\nДані передаються у форматі multipart/form-data для можливості завантаження фото.\n",
         "security": [
           {
             "bearerAuth": []
@@ -845,37 +807,6 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "example": "John Doe Updated"
-                  },
-                  "phoneNumber": {
-                    "type": "string",
-                    "example": "+380509876543"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john.updated@example.com"
-                  },
-                  "isFavourite": {
-                    "type": "boolean"
-                  },
-                  "contactType": {
-                    "type": "string",
-                    "enum": [
-                      "work",
-                      "home",
-                      "personal"
-                    ]
-                  }
-                }
-              }
-            },
             "multipart/form-data": {
               "schema": {
                 "type": "object",

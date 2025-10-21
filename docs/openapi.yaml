@@ -16,7 +16,7 @@ tags:
 servers:
   - url: http://localhost:3000
     description: Local development server
-  - url: https://your-deployed-app.com
+  - url: https://contacts-app-5v5a.onrender.com
     description: Production server
 paths:
   /auth/register:
